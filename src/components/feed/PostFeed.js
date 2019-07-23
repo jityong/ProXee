@@ -1,41 +1,41 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
+import React, { Component, Fragment } from "react";
+import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/styles";
-import MyButton from '../../util/MyButton';
+import MyButton from "../../util/MyButton";
 // MUI Stuff
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import Dialog from '@material-ui/core/Dialog';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import AddIcon from '@material-ui/icons/Add';
-import CloseIcon from '@material-ui/icons/Close';
+import Button from "@material-ui/core/Button";
+import TextField from "@material-ui/core/TextField";
+import Dialog from "@material-ui/core/Dialog";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import AddIcon from "@material-ui/icons/Add";
+import CloseIcon from "@material-ui/icons/Close";
 // Redux stuff
-import { connect } from 'react-redux';
-import { postFeed, clearErrors } from '../../redux/actions/dataActions';
+import { connect } from "react-redux";
+import { postFeed, clearErrors } from "../../redux/actions/dataActions";
 
-const styles = (theme) => ({
+const styles = theme => ({
   ...theme,
   submitButton: {
-    position: 'relative',
-    float: 'right',
+    position: "relative",
+    float: "right",
     marginTop: 10
   },
   progressSpinner: {
-    position: 'absolute'
+    position: "absolute"
   },
   closeButton: {
-    position: 'absolute',
-    left: '91%',
-    top: '6%'
+    position: "absolute",
+    left: "91%",
+    top: "6%"
   }
 });
 
 class PostFeed extends Component {
   state = {
     open: false,
-    body: '',
+    body: "",
     errors: {}
   };
   componentWillReceiveProps(nextProps) {
@@ -45,7 +45,7 @@ class PostFeed extends Component {
       });
     }
     if (!nextProps.UI.errors && !nextProps.UI.loading) {
-      this.setState({ body: '', open: false, errors: {} });
+      this.setState({ body: "", open: false, errors: {} });
     }
   }
   handleOpen = () => {
@@ -55,12 +55,16 @@ class PostFeed extends Component {
     this.props.clearErrors();
     this.setState({ open: false, errors: {} });
   };
-  handleChange = (event) => {
+  handleChange = event => {
     this.setState({ [event.target.name]: event.target.value });
   };
-  handleSubmit = (event) => {
+  handleSubmit = event => {
     event.preventDefault();
-    this.props.postFeed({ body: this.state.body });
+    this.props.postFeed({
+      body: this.state.body,
+      userLoc: this.props.userCoord
+    });
+    console.log(this.props.userCoord);
   };
   render() {
     const { errors } = this.state;
@@ -120,6 +124,7 @@ class PostFeed extends Component {
             </form>
           </DialogContent>
         </Dialog>
+        {console.log(this.props.userCoord)}
       </Fragment>
     );
   }
@@ -131,7 +136,7 @@ PostFeed.propTypes = {
   UI: PropTypes.object.isRequired
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   UI: state.UI
 });
 

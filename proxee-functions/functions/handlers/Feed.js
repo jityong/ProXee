@@ -13,7 +13,8 @@ exports.getAllFeed = (req, res) => {
           userHandle: doc.data().userHandle,
           createdTime: doc.data().createdTime,
           commentCount: doc.data().commentCount,
-          likeCount: doc.data().likeCount
+          likeCount: doc.data().likeCount,
+          userLoc: doc.data().userLoc
         });
       });
       return res.json(feeds);
@@ -34,7 +35,8 @@ exports.postOneFeed = (req, res) => {
     // userImage: req.user.imageUrl,
     createdTime: new Date().toISOString(),
     likeCount: 0,
-    commentCount: 0
+    commentCount: 0,
+    userLoc: req.body.userLoc
   };
   return db
     .collection("Feed")

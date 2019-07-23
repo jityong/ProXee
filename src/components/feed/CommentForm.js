@@ -1,24 +1,25 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/styles';
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import { withStyles } from "@material-ui/styles";
 // MUI Stuff
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
+import Button from "@material-ui/core/Button";
+import Grid from "@material-ui/core/Grid";
+import TextField from "@material-ui/core/TextField";
 // Redux stuff
-import { connect } from 'react-redux';
-import { submitComment } from '../../redux/actions/dataActions';
+import { connect } from "react-redux";
+import { submitComment } from "../../redux/actions/dataActions";
+import { Link } from "react-router-dom";
 
 //theme
 // import { theme } from '../../util/theme'
 
-const styles = (theme) => ({
+const styles = theme => ({
   ...theme
 });
 
 class CommentForm extends Component {
   state = {
-    body: '',
+    body: "",
     errors: {}
   };
 
@@ -27,14 +28,14 @@ class CommentForm extends Component {
       this.setState({ errors: nextProps.UI.errors });
     }
     if (!nextProps.UI.errors && !nextProps.UI.loading) {
-      this.setState({ body: '' });
+      this.setState({ body: "" });
     }
   }
 
-  handleChange = (event) => {
+  handleChange = event => {
     this.setState({ [event.target.name]: event.target.value });
   };
-  handleSubmit = (event) => {
+  handleSubmit = event => {
     event.preventDefault();
     this.props.submitComment(this.props.feedId, { body: this.state.body });
   };
@@ -43,8 +44,12 @@ class CommentForm extends Component {
     const { classes, authenticated } = this.props;
     const errors = this.state.errors;
 
-    const commentFormMarkup = authenticated ? (
-      <Grid item sm={12} style={{ textAlign: 'center' }}>
+    const commentFormMarkup = !authenticated ? (
+      <Grid item sm={12} style={{ textAlign: "center" }}>
+        <Button variant="contained" color="primary"> <Link to="/login" style={{textDecoration:"none",color:"white"}}>Please Login To Comment</Link> </Button>
+      </Grid>
+    ) : (
+      <Grid item sm={12} style={{ textAlign: "center" }}>
         <form onSubmit={this.handleSubmit}>
           <TextField
             name="body"
@@ -68,7 +73,7 @@ class CommentForm extends Component {
         </form>
         <hr className={classes.visibleSeparator} />
       </Grid>
-    ) : null;
+    );
     return commentFormMarkup;
   }
 }
@@ -81,7 +86,7 @@ CommentForm.propTypes = {
   authenticated: PropTypes.bool.isRequired
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   UI: state.UI,
   authenticated: state.user.authenticated
 });

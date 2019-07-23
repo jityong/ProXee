@@ -23,12 +23,7 @@ import { getFeed, clearErrors } from '../../redux/actions/dataActions';
 
 const styles = (theme) => ({
   ...theme,
-  profileImage: {
-    maxWidth: 200,
-    height: 200,
-    borderRadius: '50%',
-    objectFit: 'cover'
-  },
+  
   dialogContent: {
     padding: 20
   },
@@ -36,10 +31,10 @@ const styles = (theme) => ({
     position: 'absolute',
     left: '90%'
   },
-  expandButton: {
-    position: 'absolute',
-    left: '90%'
-  },
+  // expandButton: {
+  //   display: "flex",
+  //   left: 'relative'
+  // },
   spinnerDiv: {
     textAlign: 'center',
     marginTop: 50,
@@ -100,6 +95,11 @@ class CommentDialog extends Component {
       </div>
     ) : (
       <Grid container spacing={10}>
+        <Grid item sm={5}>
+          Comments
+        </Grid>
+{      console.log("hello")
+}
         <CommentForm feedId={feedId} />
         <Comments comments={comments} />
       </Grid>
@@ -108,10 +108,9 @@ class CommentDialog extends Component {
       <Fragment>
         <MyButton
           onClick={this.handleOpen}
-          tip="Expand feed"
-          tipClassName={classes.expandButton}
+          tip="Comments"
         >
-          <UnfoldMore color="primary" />
+          <ChatIcon color="primary" />
         </MyButton>
         <Dialog
           open={this.state.open}
@@ -139,6 +138,7 @@ CommentDialog.propTypes = {
   clearErrors: PropTypes.func.isRequired,
   getFeed: PropTypes.func.isRequired,
   feedId: PropTypes.string.isRequired,
+  userHandle: PropTypes.string.isRequired,
   feed: PropTypes.object.isRequired,
   UI: PropTypes.object.isRequired
 };

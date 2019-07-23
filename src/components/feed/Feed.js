@@ -5,9 +5,10 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import PropTypes from "prop-types";
 import MyButton from "../../util/MyButton";
+import DeleteFeed from "./DeleteFeed"
 // import DeleteFeed from './DeleteFeed';
 import CommentDialog from "./CommentDialog";
-import FeedDialog from "./FeedDialog";
+// import FeedDialog from "./CommentDialog";
 import LikeButton from "./LikeButton";
 // MUI Stuff
 import DialogTitle from "@material-ui/core/DialogTitle";
@@ -27,6 +28,7 @@ import { getFeed, clearErrors } from "../../redux/actions/dataActions";
 
 const styles = {
   card: {
+    width:"100vw",
     position: "relative",
     display: "flex",
     marginBottom: 20
@@ -36,7 +38,8 @@ const styles = {
   // },
   content: {
     padding: 25,
-    objectFit: "cover"
+    objectFit: "cover",
+    position:"center"
   }
 };
 
@@ -45,13 +48,13 @@ class Feed extends Component {
     open: false,
     comments: []
   };
-  // componentDidMount() { 
+  // componentDidMount() {
   //   if (this.props.openDialog) {
   //     this.handleOpen();
   //   }
   // }
 
-  // handleOpen = () => { 
+  // handleOpen = () => {
   //   this.setState({open: true})
   //   this.props.getFeed(this.props.feed.feedId);
 
@@ -72,11 +75,10 @@ class Feed extends Component {
   //     .catch(err => console.log(err));
   // }
   render() {
-
     // const { feed, loading } = this.props.data;
     // console.log(feed.feedId);
     //   let feedComments = !loading ? (
-    //     feed.comments.map(comment => 
+    //     feed.comments.map(comment =>
     //    <div>{comment.body}</div>) ): (
     //       <p>Loading...</p>
     //     )
@@ -92,6 +94,7 @@ class Feed extends Component {
         feedId,
         likeCount,
         commentCount,
+        userLoc,
         comments
       },
       user: {
@@ -99,13 +102,12 @@ class Feed extends Component {
         credentials: { handle }
       }
     } = this.props;
-       
 
-    // const deleteButton =
-    //   authenticated && userHandle === handle ? (
-    //     <DeleteFeed feedId={feedId} />
-    //   ) : null;
-    return (      
+    const deleteButton =
+      authenticated && userHandle === handle ? (
+        <DeleteFeed feedId={feedId} />
+      ) : null;
+    return (
       <Card className={classes.card}>
         <CardContent className={classes.content}>
           <Typography
@@ -123,15 +125,15 @@ class Feed extends Component {
           <Typography variant="body1">{body}</Typography>
           <LikeButton feedId={feedId} />
           <span>{likeCount} Likes</span>
-          <MyButton tip="comments" onClick={this.handleOpen}>
-            <ChatIcon color="primary" />
-          </MyButton>
-          <span>{commentCount} comments</span>
-          <FeedDialog
+
+          <CommentDialog
             feedId={feedId}
             userHandle={userHandle}
             openDialog={this.props.openDialog}
-          />
+          >
+          </CommentDialog>
+          <span>{commentCount} comments</span>
+          {deleteButton}
         </CardContent>
       </Card>
     );
