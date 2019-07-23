@@ -10,8 +10,12 @@ import MyButton from '../../util/MyButton';
 
 
 export class DeleteFeed extends Component {
+    state = { 
+        temp: true,
+    }
     handleClick = () => {
         this.props.deleteFeed(this.props.feedId)
+        this.setState({temp:!this.state.temp})
     }
     render() {
         return (

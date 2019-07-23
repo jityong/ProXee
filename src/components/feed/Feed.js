@@ -25,6 +25,7 @@ import { connect } from "react-redux";
 import { withStyles } from "@material-ui/styles";
 import Comments from "./Comments";
 import { getFeed, clearErrors } from "../../redux/actions/dataActions";
+import { Grid } from "@material-ui/core";
 
 const styles = {
   card: {
@@ -105,11 +106,13 @@ class Feed extends Component {
 
     const deleteButton =
       authenticated && userHandle === handle ? (
-        <DeleteFeed feedId={feedId} />
+        <DeleteFeed feedId={feedId} /> 
       ) : null;
     return (
       <Card className={classes.card}>
         <CardContent className={classes.content}>
+        <Grid container direction="row" justify="space-between">
+        <Grid item xs={12} sm={6}>
           <Typography
             variant="h5"
             component={Link}
@@ -118,7 +121,11 @@ class Feed extends Component {
           >
             {userHandle}
           </Typography>
-          {/* {deleteButton} */}
+          </Grid>
+          <Grid item xs={12} sm={6}>
+          {deleteButton}
+          </Grid>
+          </Grid>
           <Typography variant="body2" color="textSecondary">
             {dayjs(createdAt).fromNow()}
           </Typography>
@@ -133,7 +140,6 @@ class Feed extends Component {
           >
           </CommentDialog>
           <span>{commentCount} comments</span>
-          {deleteButton}
         </CardContent>
       </Card>
     );

@@ -89,6 +89,21 @@ exports.login = (req, res) => {
     });
 };
 
+//add user details
+exports.addUserDetails = (req, res) => {
+  let userDetails = reduceUserDetails(req.body);
+
+  db.doc(`/users/${req.user.handle}`)
+    .update(userDetails)
+    .then(() => {
+      return res.json({ message: 'Details added successfully' });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+
 //retrieve user details
 exports.getUserDetails = (req, res) => {
   let userData = {};
@@ -130,6 +145,7 @@ exports.getAuthenticatedUser = (req, res) => {
     let userData = {};
     db.doc(`/users/${req.user.handle}`)
       .get()
+      // eslint-disable-next-line consistent-return
       .then((doc) => {
         // eslint-disable-next-line promise/always-return
         if (doc.exists) {
@@ -145,33 +161,27 @@ exports.getAuthenticatedUser = (req, res) => {
         data.forEach((doc) => {
           userData.likes.push(doc.data());
         });
-        return db
-          .collection('notifications')
-          .where('recipient', '==', req.user.handle)
-          .orderBy('createdTime', 'desc')
-          .limit(10)
-          .get();
-      })
-      .then((data) => {
-        userData.notifications = [];
-        data.forEach((doc) => {
-          userData.notifications.push({
-            recipient: doc.data().recipient,
-            sender: doc.data().sender,
-            createdTime: doc.data().createdTime,
-            feedId: doc.data().feedId,
-            type: doc.data().type,
-            read: doc.data().read,
-            notificationId: doc.id
-          });
-        });
         return res.json(userData);
       })
+      // .then((data) => {
+      //   userData.notifications = [];
+      //   data.forEach((doc) => {
+      //     userData.notifications.push({
+      //       recipient: doc.data().recipient,
+      //       sender: doc.data().sender,
+      //       createdTime: doc.data().createdTime,
+      //       feedId: doc.data().feedId,
+      //       type: doc.data().type,
+      //       read: doc.data().read,
+      //       notificationId: doc.id
+      //     });
+      //   });
+      //   return res.json(userData);
+      // })
       .catch((err) => {
         console.error(err);
         return res.status(500).json({ error: err.code });
   });
 };
-//add user details
-//get own user's data
+
 //upload profile image for user

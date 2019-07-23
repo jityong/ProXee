@@ -22,6 +22,7 @@ const {
     login,
     getAuthenticatedUser,
     getUserDetails,
+    addUserDetails,
 } = require ('./handlers/users');
 
 //Feed routes
@@ -38,7 +39,7 @@ app.post('/Feed/:feedId/comment', FBAuth, commentOnFeed);
 app.post('/signup', signup);
 app.post('/login', login);
 // app.post('/user/image', FBAuth, uploadImage);
-// app.post('/user', FBAuth, addUserDetails);
+app.post('/user', FBAuth, addUserDetails);
 app.get('/user', FBAuth, getAuthenticatedUser);
 app.get('/user/:handle', getUserDetails);
 // app.post('/notifications', FBAuth, markNotificationsRead);
