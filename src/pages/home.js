@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import Geocode from "react-geocode";
 import Feed from "../components/feed/Feed";
 import { Link } from "react-router-dom";
+import Logout from "./logout";
 
 // import FeedSkeleton from "../util/FeedSkeleton";
 
@@ -29,7 +30,6 @@ import MoreIcon from "@material-ui/icons/MoreVert";
 import Button from "@material-ui/core/Button";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
-
 Geocode.setApiKey("AIzaSyC63MRGstzFKD2AM5kWftjEBGeYZQpFphQ");
 
 const styles = theme => ({
@@ -54,12 +54,13 @@ export class home extends Component {
   constructor() {
     super();
     this.state = {
+      user: "",
       userCoord: { lat: 0, lng: 0 },
       userLoc: "",
       loading: true,
       filter: "Proximity",
       distance: "3",
-      eventRoom: ""
+      Tag: "general"
     };
     this.handleChange = this.handleChange.bind(this);
   }
@@ -86,6 +87,7 @@ export class home extends Component {
   }
 
   render() {
+    const { authenticated } = this.props.user;
     const { classes } = this.props;
     const { feeds, loading } = this.props.data;
     const { lat, lng } = this.state.userCoord;
@@ -100,12 +102,12 @@ export class home extends Component {
             return turf.distance(from, to, options) < this.state.distance;
           })
           .map(feed => <Feed key={feed.feedId} feed={feed} />)
-      ) : null
+      ) : (
+        feeds.filter(feed => {
+          return feed.feedType === this.state.Tag;
+        })
+      )
     ) : (
-      //   feeds
-      // .filter(feed => {
-      //   return feed.tag === "this.state.eventRoom";
-      // }
       <p>Loading...</p>
     );
 
@@ -141,7 +143,7 @@ export class home extends Component {
               >
                 <option value="" />
                 <option value="Proximity">Proximity</option>
-                <option value="EventRooms">Event Rooms</option>
+                <option value="Tag">Tag</option>
               </Select>
             </FormControl>
             {this.state.filter === "Proximity" ? (
@@ -159,14 +161,14 @@ export class home extends Component {
             ) : (
               <FormControl>
                 <Select
-                  name="eventRoom"
-                  value={this.state.eventRoom}
+                  name="Tag"
+                  value={this.state.Tag}
                   onChange={this.handleChange}
                 >
                   <option>-- Choose one --</option>
-                  <option value="test1">test1</option>
-                  <option value="test2">test2</option>
-                  <option value="test3">test3</option>
+                  <option value="general">General</option>
+                  <option value="question">Question</option>
+                  <option value="poll">Poll</option>
                 </Select>
               </FormControl>
             )}
@@ -182,11 +184,15 @@ export class home extends Component {
         <AppBar position="fixed" color="primary" className={classes.appBar}>
           <Toolbar>
             <IconButton edge="start" color="inherit" aria-label="Open drawer">
-              <Button variant="contained">
-                <Link to="/login" style={{ textDecoration: "none" }}>
-                  Login/Signup
-                </Link>
-              </Button>
+              {authenticated ? (
+                <Logout />
+              ) : (
+                <Button variant="contained">
+                  <Link to="/login" style={{ textDecoration: "none" }}>
+                    Login/Signup
+                  </Link>
+                </Button>
+              )}
             </IconButton>
             <Fab
               color="secondary"
@@ -215,7 +221,8 @@ home.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  data: state.data
+  data: state.data,
+  user: state.user
 });
 
 export default connect(

@@ -28,7 +28,6 @@ import {
         });
       });
   };
-  
   export const signupUser = (newUserData, history) => (dispatch) => {
     dispatch({ type: LOADING_UI });
     axios

@@ -15,6 +15,7 @@ const {
     likeFeed,
     unlikeFeed,
     deleteFeed,
+    uploadImage
 } = require ('./handlers/Feed');
 
 const { 
@@ -33,12 +34,12 @@ app.delete('/Feed/:feedId', FBAuth, deleteFeed);
 app.get('/Feed/:feedId/like', FBAuth, likeFeed);
 app.get('/Feed/:feedId/unlike', FBAuth,unlikeFeed);
 app.post('/Feed/:feedId/comment', FBAuth, commentOnFeed);
-
+app.post('/Feed/image', FBAuth, uploadImage);
 //users routes
 
 app.post('/signup', signup);
 app.post('/login', login);
-// app.post('/user/image', FBAuth, uploadImage);
+
 app.post('/user', FBAuth, addUserDetails);
 app.get('/user', FBAuth, getAuthenticatedUser);
 app.get('/user/:handle', getUserDetails);

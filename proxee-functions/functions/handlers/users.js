@@ -4,6 +4,15 @@ const config = require("../util/config");
 
 const firebase = require("firebase");
 firebase.initializeApp(config);
+firebase.auth().onAuthStateChanged((user) => {
+  if (user) {
+    // eslint-disable-next-line no-alert
+    alert("Signed in user!")
+  } else {
+    // eslint-disable-next-line no-alert
+    alert("No user!")
+  }
+});
 
 const {
   validateSignupData,
@@ -62,7 +71,17 @@ exports.signup = (req, res) => {
       }
     });
 };
-
+exports.observe = (req,res) => {
+  return firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      // eslint-disable-next-line no-alert
+      alert("Signed in user!")
+    } else {
+      // eslint-disable-next-line no-alert
+      alert("No user!")
+    }
+  });
+}
 //login
 exports.login = (req, res) => {
   const user = {
@@ -71,7 +90,18 @@ exports.login = (req, res) => {
   };
   const { valid, errors } = validateLoginData(user);
   if (!valid) return res.status(400).json(errors);
-
+  
+exports.logout = (req,res) => {
+  firebase.auth().signOut()
+  .then( ()=> {
+    console.log("logout success")
+    return null;
+  })
+  .catch((err) => {
+    console.error(err);
+    return res.status(500).json({ error: err.code });
+  });
+}
   return firebase
     .auth()
     .signInWithEmailAndPassword(user.email, user.password)
@@ -109,22 +139,22 @@ exports.getUserDetails = (req, res) => {
   let userData = {};
   db.doc(`/users/${req.params.handle}`)
     .get()
-    .then(doc => {
+    .then((doc) => {
       if (doc.exists) {
         userData.user = doc.data();
         return db
-          .collection("Feed")
-          .where("userHandle", "==", req.params.handle)
-          .orderBy("createdTime", "desc")
+          .collection('Feed')
+          .where('userHandle', '==', req.params.handle)
+          // .orderBy('createdTime', 'des)
           .get();
       } else {
-        return res.status(404).json({ error: "User not found" });
+        return res.status(404).json({ errror: 'User not found' });
       }
     })
-    .then(data => {
-      userData.Feed = [];
-      data.forEach(doc => {
-        userData.Feed.push({
+    .then((data) => {
+      userData.feed = [];
+      data.forEach((doc) => {
+        userData.feed.push({
           body: doc.data().body,
           createdTime: doc.data().createdTime,
           userHandle: doc.data().userHandle,
@@ -135,7 +165,7 @@ exports.getUserDetails = (req, res) => {
       });
       return res.json(userData);
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err);
       return res.status(500).json({ error: err.code });
     });
@@ -163,21 +193,6 @@ exports.getAuthenticatedUser = (req, res) => {
         });
         return res.json(userData);
       })
-      // .then((data) => {
-      //   userData.notifications = [];
-      //   data.forEach((doc) => {
-      //     userData.notifications.push({
-      //       recipient: doc.data().recipient,
-      //       sender: doc.data().sender,
-      //       createdTime: doc.data().createdTime,
-      //       feedId: doc.data().feedId,
-      //       type: doc.data().type,
-      //       read: doc.data().read,
-      //       notificationId: doc.id
-      //     });
-      //   });
-      //   return res.json(userData);
-      // })
       .catch((err) => {
         console.error(err);
         return res.status(500).json({ error: err.code });

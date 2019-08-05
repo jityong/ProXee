@@ -15,6 +15,8 @@ import signup from "./pages/signup";
 //axios
 import axios from 'axios';
 
+import * as firebase from 'firebase'
+
 // axios.defaults.baseURL =
 //   'https://asia-east2-proxee-3a609.cloudfunctions.net/api ';
 
@@ -32,6 +34,8 @@ import axios from 'axios';
 // }
 
 function App() {
+  
+ 
   return (
     <Provider store={store}>
       <Router>

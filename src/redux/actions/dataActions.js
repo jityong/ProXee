@@ -10,7 +10,8 @@ import {
     LOADING_UI,
     SET_FEED,
     STOP_LOADING_UI,
-    SUBMIT_COMMENT
+    SUBMIT_COMMENT,
+    SET_USERDATA
   } from '../types';
   import axios from 'axios';
   
@@ -132,8 +133,35 @@ import {
         });
       });
   };
+  export const getUsersData = (userHandle) => (dispatch) => {
+    axios
+      .get(`/user/${userHandle}`)
+      .then((res) => {
+        dispatch({
+          type: SET_USERDATA,
+          payload: res.data
+        });
+      })
+      .catch(() => {
+        dispatch({
+          type: SET_USERDATA,
+          payload: null
+        });
+      });
+  };
   
   export const clearErrors = () => (dispatch) => {
     dispatch({ type: CLEAR_ERRORS });
+  };
+  
+
+  export const uploadImage = (formData) => (dispatch) => {
+    dispatch({ type: POST_FEED });
+    axios
+      .post('/Feed/image', formData)
+      .then(() => {
+        dispatch(getUserData());
+      })
+      .catch((err) => console.log(err));
   };
   

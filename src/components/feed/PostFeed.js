@@ -11,6 +11,12 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import AddIcon from "@material-ui/icons/Add";
 import CloseIcon from "@material-ui/icons/Close";
+import Grid from "@material-ui/core/Grid";
+import { borders } from "@material-ui/system";
+import ReactVote from "react-vote";
+import firebase from "firebase";
+import FileUploader from "react-firebase-file-uploader";
+
 // Redux stuff
 import { connect } from "react-redux";
 import { postFeed, clearErrors } from "../../redux/actions/dataActions";
@@ -36,7 +42,10 @@ class PostFeed extends Component {
   state = {
     open: false,
     body: "",
-    errors: {}
+    errors: {},
+    feedType: "",
+    isUploading: false,
+    progress: 0
   };
   componentWillReceiveProps(nextProps) {
     if (nextProps.UI.errors) {
@@ -48,6 +57,15 @@ class PostFeed extends Component {
       this.setState({ body: "", open: false, errors: {} });
     }
   }
+  handleShareClick = () => {
+    this.setState({ feedType: "general" });
+  };
+  handleQnClick = () => {
+    this.setState({ feedType: "question" });
+  };
+  handlePollClick = () => {
+    this.setState({ feedType: "poll" });
+  };
   handleOpen = () => {
     this.setState({ open: true });
   };
@@ -58,13 +76,33 @@ class PostFeed extends Component {
   handleChange = event => {
     this.setState({ [event.target.name]: event.target.value });
   };
+  handleBack = () => {
+    this.setState({ feedType: "" });
+  };
   handleSubmit = event => {
     event.preventDefault();
     this.props.postFeed({
       body: this.state.body,
-      userLoc: this.props.userCoord
+      userLoc: this.props.userCoord,
+      feedType: this.state.feedType
     });
     console.log(this.props.userCoord);
+  };
+
+  handleUploadStart = () => this.setState({ isUploading: true, progress: 0 });
+  handleProgress = progress => this.setState({ progress });
+  handleUploadError = error => {
+    this.setState({ isUploading: false });
+    console.error(error);
+  };
+  handleUploadSuccess = filename => {
+    this.setState({ avatar: filename, progress: 100, isUploading: false });
+    firebase
+      .storage()
+      .ref("images")
+      .child(filename)
+      .getDownloadURL()
+      .then(url => this.setState({ avatarURL: url }));
   };
   render() {
     const { errors } = this.state;
@@ -72,6 +110,152 @@ class PostFeed extends Component {
       classes,
       UI: { loading }
     } = this.props;
+    const post =
+      this.state.feedType === "general" ? (
+        <Fragment>
+          <TextField
+            name="body"
+            type="text"
+            label="FEED"
+            multiline
+            rows="3"
+            placeholder=" Post a feed"
+            error={errors.body ? true : false}
+            helperText={errors.body}
+            className={classes.textField}
+            onChange={this.handleChange}
+            fullWidth
+          />
+          
+          <form onSubmit={this.handleSubmit}>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={this.handleBack}
+            >
+              Back
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              className={classes.submitButton}
+              disabled={loading}
+            >
+              Submit
+              {loading && (
+                <CircularProgress
+                  size={30}
+                  className={classes.progressSpinner}
+                />
+              )}
+            </Button>
+          </form>
+        </Fragment>
+      ) : this.state.feedType === "question" ? (
+        <Fragment>
+          <TextField
+            name="body"
+            type="text"
+            label="QUESTION"
+            multiline
+            rows="3"
+            placeholder=" Ask a question"
+            error={errors.body ? true : false}
+            helperText={errors.body}
+            className={classes.textField}
+            onChange={this.handleChange}
+            fullWidth
+          />
+          <input type="file" />
+          <form onSubmit={this.handleSubmit}>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={this.handleBack}
+            >
+              Back
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              className={classes.submitButton}
+              disabled={loading}
+            >
+              Submit
+              {loading && (
+                <CircularProgress
+                  size={30}
+                  className={classes.progressSpinner}
+                />
+              )}
+            </Button>
+          </form>
+        </Fragment>
+      ) : this.state.feedType === "" ? (
+        <Grid
+          container
+          direction="column"
+          justify="center"
+          alignItems="stretch"
+        >
+          <Grid item size={12}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={this.handleShareClick}
+            >
+              Share something{" "}
+            </Button>
+          </Grid>
+
+          <Grid item>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={this.handleQnClick}
+            >
+              {" "}
+              Ask a Question{" "}
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button variant="contained" onClick={this.handlePollClick}>
+              {" "}
+              Create a Poll{" "}
+            </Button>
+          </Grid>
+        </Grid>
+      ) : (
+        <Fragment>
+          Create Poll!
+          <form onSubmit={this.handleSubmit}>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={this.handleBack}
+            >
+              Back
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              className={classes.submitButton}
+              disabled={loading}
+            >
+              Submit
+              {loading && (
+                <CircularProgress
+                  size={30}
+                  className={classes.progressSpinner}
+                />
+              )}
+            </Button>
+          </form>
+        </Fragment>
+      );
     return (
       <Fragment>
         <MyButton onClick={this.handleOpen} tip="Post a Feed!">
@@ -91,38 +275,8 @@ class PostFeed extends Component {
             <CloseIcon />
           </MyButton>
           <DialogTitle>Post a new feed</DialogTitle>
-          <DialogContent>
-            <form onSubmit={this.handleSubmit}>
-              <TextField
-                name="body"
-                type="text"
-                label="FEED"
-                multiline
-                rows="3"
-                placeholder=" Post a feed"
-                error={errors.body ? true : false}
-                helperText={errors.body}
-                className={classes.textField}
-                onChange={this.handleChange}
-                fullWidth
-              />
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                className={classes.submitButton}
-                disabled={loading}
-              >
-                Submit
-                {loading && (
-                  <CircularProgress
-                    size={30}
-                    className={classes.progressSpinner}
-                  />
-                )}
-              </Button>
-            </form>
-          </DialogContent>
+
+          <DialogContent fullWidth>{post}</DialogContent>
         </Dialog>
         {console.log(this.props.userCoord)}
       </Fragment>

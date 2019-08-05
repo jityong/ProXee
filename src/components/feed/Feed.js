@@ -5,7 +5,8 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import PropTypes from "prop-types";
 import MyButton from "../../util/MyButton";
-import DeleteFeed from "./DeleteFeed"
+import DeleteFeed from "./DeleteFeed";
+import Profile from "./Profile";
 // import DeleteFeed from './DeleteFeed';
 import CommentDialog from "./CommentDialog";
 // import FeedDialog from "./CommentDialog";
@@ -17,6 +18,8 @@ import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
 import Typography from "@material-ui/core/Typography";
+import { ThemeProvider } from "@material-ui/styles";
+import { createMuiTheme, makeStyles } from "@material-ui/core/styles";
 
 // Icons
 import ChatIcon from "@material-ui/icons/Chat";
@@ -25,11 +28,11 @@ import { connect } from "react-redux";
 import { withStyles } from "@material-ui/styles";
 import Comments from "./Comments";
 import { getFeed, clearErrors } from "../../redux/actions/dataActions";
-import { Grid } from "@material-ui/core";
+import { Grid, Button } from "@material-ui/core";
 
 const styles = {
   card: {
-    width:"100vw",
+    width: "100vw",
     position: "relative",
     display: "flex",
     marginBottom: 20
@@ -40,49 +43,33 @@ const styles = {
   content: {
     padding: 25,
     objectFit: "cover",
-    position:"center"
+    position: "center"
+  },
+  sharing: {
+    fontWeight: 600,
+    fontStyle: "italic",
+    color: "green"
+  },
+  question: {
+    fontWeight: 600,
+    fontStyle: "italic",
+    color: "red"
+  },
+  poll: {
+    fontWeight: 600,
+    fontStyle: "italic",
+    color: "purple"
   }
 };
 
 class Feed extends Component {
   state = {
     open: false,
+    userOpen: false,
     comments: []
   };
-  // componentDidMount() {
-  //   if (this.props.openDialog) {
-  //     this.handleOpen();
-  //   }
-  // }
-
-  // handleOpen = () => {
-  //   this.setState({open: true})
-  //   this.props.getFeed(this.props.feed.feedId);
-
-  // }
-  // handleClose = () => {
-  //   this.setState({ open: false });
-  //   this.props.clearErrors();
-  // }
-  // componentDidMount() {
-  //   axios
-  //     .get("/comments")
-  //     .then(res => {
-  //       console.log(res.data);
-  //       this.setState({
-  //         comments: res.data
-  //       });
-  //     })
-  //     .catch(err => console.log(err));
-  // }
+  
   render() {
-    // const { feed, loading } = this.props.data;
-    // console.log(feed.feedId);
-    //   let feedComments = !loading ? (
-    //     feed.comments.map(comment =>
-    //    <div>{comment.body}</div>) ): (
-    //       <p>Loading...</p>
-    //     )
     dayjs.extend(relativeTime);
     const {
       getFeed,
@@ -96,7 +83,8 @@ class Feed extends Component {
         likeCount,
         commentCount,
         userLoc,
-        comments
+        comments,
+        feedType
       },
       user: {
         authenticated,
@@ -106,26 +94,35 @@ class Feed extends Component {
 
     const deleteButton =
       authenticated && userHandle === handle ? (
-        <DeleteFeed feedId={feedId} /> 
+        <DeleteFeed feedId={feedId} />
       ) : null;
     return (
       <Card className={classes.card}>
         <CardContent className={classes.content}>
-        <Grid container direction="row" justify="space-between">
-        <Grid item xs={12} sm={6}>
-          <Typography
-            variant="h5"
-            component={Link}
-            to={`/users/${userHandle}`}
-            color="primary"
-          >
-            {userHandle}
-          </Typography>
+          <Grid container direction="row">
+            <Grid item xs={12} sm={6}>
+              <Profile
+                userHandle={userHandle}
+              />
+              {/* User Profile */}
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              {deleteButton}
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={6}>
-          {deleteButton}
-          </Grid>
-          </Grid>
+          {feedType === "general" ? (
+            <Typography variant="body2" className={classes.sharing}>
+              #general
+            </Typography>
+          ) : feedType === "question" ? (
+            <Typography variant="body2" className={classes.question}>
+              #question
+            </Typography>
+          ) : (
+            <Typography variant="body2" className={classes.poll}>
+              #poll
+            </Typography>
+          )}
           <Typography variant="body2" color="textSecondary">
             {dayjs(createdAt).fromNow()}
           </Typography>
@@ -137,8 +134,7 @@ class Feed extends Component {
             feedId={feedId}
             userHandle={userHandle}
             openDialog={this.props.openDialog}
-          >
-          </CommentDialog>
+          />
           <span>{commentCount} comments</span>
         </CardContent>
       </Card>
