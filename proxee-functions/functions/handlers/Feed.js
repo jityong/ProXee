@@ -1,5 +1,5 @@
-const { db } = require("../util/admin");
-
+const { admin, db } = require("../util/admin");
+const { config } = require("../util/config");
 exports.getAllFeed = (req, res) => {
   db.collection("Feed")
     .orderBy("createdTime", "desc")
@@ -16,7 +16,7 @@ exports.getAllFeed = (req, res) => {
           likeCount: doc.data().likeCount,
           userLoc: doc.data().userLoc,
           feedType: doc.data().feedType,
-          imageUrl:""
+          imageUrl: doc.data().imageUrl
         });
       });
       return res.json(feeds);
@@ -39,7 +39,8 @@ exports.postOneFeed = (req, res) => {
     likeCount: 0,
     commentCount: 0,
     userLoc: req.body.userLoc,
-    feedType: req.body.feedType
+    feedType: req.body.feedType,
+    imageUrl: ""
   };
   return db
     .collection("Feed")
@@ -232,23 +233,25 @@ exports.deleteFeed = (req, res) => {
 
 //upload image
 exports.uploadImage = (req, res) => {
-  const BusBoy = require('busboy');
-  const path = require('path');
-  const os = require('os');
-  const fs = require('fs');
+  const BusBoy = require("busboy");
+  const path = require("path");
+  const os = require("os");
+  const fs = require("fs");
 
   const busboy = new BusBoy({ headers: req.headers });
 
   let imageToBeUploaded = {};
   let imageFileName;
+  let imageUrl = "test";
 
-  busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+  // eslint-disable-next-line consistent-return
+  busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
     console.log(fieldname, file, filename, encoding, mimetype);
-    if (mimetype !== 'image/jpeg' && mimetype !== 'image/png') {
-      return res.status(400).json({ error: 'Wrong file type submitted' });
+    if (mimetype !== "image/jpeg" && mimetype !== "image/png") {
+      return res.status(400).json({ error: "Wrong file type submitted" });
     }
     // my.image.png => ['my', 'image', 'png']
-    const imageExtension = filename.split('.')[filename.split('.').length - 1];
+    const imageExtension = filename.split(".")[filename.split(".").length - 1];
     // 32756238461724837.png
     imageFileName = `${Math.round(
       Math.random() * 1000000000000
@@ -257,7 +260,7 @@ exports.uploadImage = (req, res) => {
     imageToBeUploaded = { filepath, mimetype };
     file.pipe(fs.createWriteStream(filepath));
   });
-  busboy.on('finish', () => {
+  busboy.on("finish", () => {
     admin
       .storage()
       .bucket()
@@ -270,18 +273,16 @@ exports.uploadImage = (req, res) => {
         }
       })
       .then(() => {
-        const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${
-          config.storageBucket
-        }/o/${imageFileName}?alt=media`;
-        return db.doc(`/Feed/${req.feed.feedId}`).update({ imageUrl });
+        imageUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
+        return db.doc(`/image/img`).update(imageUrl);
       })
       .then(() => {
-        return res.json({ message: 'image uploaded successfully' });
+        return res.json("its working");
       })
-      .catch((err) => {
+      .catch(err => {
         console.error(err);
-        return res.status(500).json({ error: 'something went wrong' });
+        return res.status(500).json({ error: "something went wrong" });
       });
   });
-  busboy.end(req.rawBody);
-};
+  return busboy.end(req.rawBody);
+}

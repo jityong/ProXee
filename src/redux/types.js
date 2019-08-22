@@ -21,3 +21,4 @@ export const DELETE_FEED = 'DELETE_FEED';
 export const POST_FEED = 'POST_FEED';
 export const SUBMIT_COMMENT = 'SUBMIT_COMMENT';
 export const SET_USERDATA ="SET_USERDATA"
+export const UPLOAD_IMAGE ="UPLOAD_IMAGE"

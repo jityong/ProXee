@@ -11,7 +11,7 @@ import MyButton from '../../util/MyButton';
 
 export class DeleteFeed extends Component {
     state = { 
-        temp: true,
+        temp: this.props.data.temp,
     }
     handleClick = () => {
         this.props.deleteFeed(this.props.feedId)
@@ -32,11 +32,13 @@ DeleteFeed.propTypes = {
     deleteFeed: PropTypes.func.isRequired,
     clearErrors: PropTypes.func.isRequired,
     UI: PropTypes.object.isRequired,
+    data: PropTypes.object.isRequired,
     feedId: PropTypes.object.isRequired
   };
   
   const mapStateToProps = state => ({
-    UI: state.UI
+    UI: state.UI,
+    data: state.data
   });
 export default connect(
     mapStateToProps,

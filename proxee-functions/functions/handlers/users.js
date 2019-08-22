@@ -4,15 +4,15 @@ const config = require("../util/config");
 
 const firebase = require("firebase");
 firebase.initializeApp(config);
-firebase.auth().onAuthStateChanged((user) => {
-  if (user) {
-    // eslint-disable-next-line no-alert
-    alert("Signed in user!")
-  } else {
-    // eslint-disable-next-line no-alert
-    alert("No user!")
-  }
-});
+// firebase.auth().onAuthStateChanged((user) => {
+//   if (user) {
+//     // eslint-disable-next-line no-alert
+//     alert("Signed in user!")
+//   } else {
+//     // eslint-disable-next-line no-alert
+//     alert("No user!")
+//   }
+// });
 
 const {
   validateSignupData,
@@ -71,17 +71,17 @@ exports.signup = (req, res) => {
       }
     });
 };
-exports.observe = (req,res) => {
-  return firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
-      // eslint-disable-next-line no-alert
-      alert("Signed in user!")
-    } else {
-      // eslint-disable-next-line no-alert
-      alert("No user!")
-    }
-  });
-}
+// exports.observe = (req,res) => {
+//   return firebase.auth().onAuthStateChanged((user) => {
+//     if (user) {
+//       // eslint-disable-next-line no-alert
+//       alert("Signed in user!")
+//     } else {
+//       // eslint-disable-next-line no-alert
+//       alert("No user!")
+//     }
+//   });
+// }
 //login
 exports.login = (req, res) => {
   const user = {

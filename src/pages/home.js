@@ -105,7 +105,7 @@ export class home extends Component {
       ) : (
         feeds.filter(feed => {
           return feed.feedType === this.state.Tag;
-        })
+        }).map(feed => <Feed key={feed.feedId} feed={feed} />)
       )
     ) : (
       <p>Loading...</p>
@@ -203,10 +203,10 @@ export class home extends Component {
             </Fab>
             <div className={classes.grow} />
             <IconButton color="inherit">
-              <SearchIcon />
+              {/* <SearchIcon /> */}
             </IconButton>
             <IconButton edge="end" color="inherit">
-              <MoreIcon />
+              {/* <MoreIcon /> */}
             </IconButton>
           </Toolbar>
         </AppBar>

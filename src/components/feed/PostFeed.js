@@ -19,7 +19,11 @@ import FileUploader from "react-firebase-file-uploader";
 
 // Redux stuff
 import { connect } from "react-redux";
-import { postFeed, clearErrors } from "../../redux/actions/dataActions";
+import {
+  postFeed,
+  uploadImage,
+  clearErrors
+} from "../../redux/actions/dataActions";
 
 const styles = theme => ({
   ...theme,
@@ -45,7 +49,8 @@ class PostFeed extends Component {
     errors: {},
     feedType: "",
     isUploading: false,
-    progress: 0
+    progress: 0,
+    imageUrl: ""
   };
   componentWillReceiveProps(nextProps) {
     if (nextProps.UI.errors) {
@@ -84,26 +89,19 @@ class PostFeed extends Component {
     this.props.postFeed({
       body: this.state.body,
       userLoc: this.props.userCoord,
-      feedType: this.state.feedType
+      feedType: this.state.feedType,
+      imageUrl: this.state.imageUrl
     });
     console.log(this.props.userCoord);
   };
-
-  handleUploadStart = () => this.setState({ isUploading: true, progress: 0 });
-  handleProgress = progress => this.setState({ progress });
-  handleUploadError = error => {
-    this.setState({ isUploading: false });
-    console.error(error);
+  handleImageUpload = event => {
+    const image = event.target.files[0];
+    const formData = new FormData();
+    formData.append("image", image, image.name);
+    this.props.uploadImage(formData);
+    console.log("in handleImageUpload");
   };
-  handleUploadSuccess = filename => {
-    this.setState({ avatar: filename, progress: 100, isUploading: false });
-    firebase
-      .storage()
-      .ref("images")
-      .child(filename)
-      .getDownloadURL()
-      .then(url => this.setState({ avatarURL: url }));
-  };
+  
   render() {
     const { errors } = this.state;
     const {
@@ -126,7 +124,9 @@ class PostFeed extends Component {
             onChange={this.handleChange}
             fullWidth
           />
-          
+          <label>Image</label>
+          <input type="file" onChange={this.handleImageUpload} />
+
           <form onSubmit={this.handleSubmit}>
             <Button
               variant="outlined"
@@ -167,7 +167,8 @@ class PostFeed extends Component {
             onChange={this.handleChange}
             fullWidth
           />
-          <input type="file" />
+          <label>Image</label>
+          <input type="file" onChange={this.handleImageUpload} />
           <form onSubmit={this.handleSubmit}>
             <Button
               variant="outlined"
@@ -286,6 +287,7 @@ class PostFeed extends Component {
 
 PostFeed.propTypes = {
   postFeed: PropTypes.func.isRequired,
+  uploadImage: PropTypes.func.isRequired,
   clearErrors: PropTypes.func.isRequired,
   UI: PropTypes.object.isRequired
 };
@@ -296,5 +298,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { postFeed, clearErrors }
+  { postFeed, uploadImage, clearErrors }
 )(withStyles(styles)(PostFeed));

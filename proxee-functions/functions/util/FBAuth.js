@@ -2,8 +2,20 @@ const { admin, db } = require("./admin");
 
 module.exports = (req, res, next) => {
   let idToken;
-  if (
-     req.headers.authorization &&
+  if (typeof window !== "undefined") {
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith(
+        "Bearer ") || localStorage.getItem("FBIdToken")
+    ) {
+      if (localStorage.getItem("FBIdToken")) {
+        idToken = localStorage.getItem("FBIdToken").split("Bearer ")[1];
+      } else {
+        idToken = req.headers.authorization.split("Bearer ")[1];
+      }
+    }
+  } else if (
+    req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer ")
   ) {
     idToken = req.headers.authorization.split("Bearer ")[1];

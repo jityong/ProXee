@@ -1,10 +1,10 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 // import withStyles from '@material-ui/core/styles/withStyles';
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import PropTypes from "prop-types";
-import MyButton from "../../util/MyButton";
+// import MyButton from "../../util/MyButton";
 import DeleteFeed from "./DeleteFeed";
 import Profile from "./Profile";
 // import DeleteFeed from './DeleteFeed';
@@ -12,23 +12,23 @@ import CommentDialog from "./CommentDialog";
 // import FeedDialog from "./CommentDialog";
 import LikeButton from "./LikeButton";
 // MUI Stuff
-import DialogTitle from "@material-ui/core/DialogTitle";
-import Dialog from "@material-ui/core/Dialog";
+// import DialogTitle from "@material-ui/core/DialogTitle";
+// import Dialog from "@material-ui/core/Dialog";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
-import CardMedia from "@material-ui/core/CardMedia";
+// import CardMedia from "@material-ui/core/CardMedia";
 import Typography from "@material-ui/core/Typography";
-import { ThemeProvider } from "@material-ui/styles";
-import { createMuiTheme, makeStyles } from "@material-ui/core/styles";
+// import { ThemeProvider } from "@material-ui/styles";
+// import { createMuiTheme, makeStyles } from "@material-ui/core/styles";
 
 // Icons
-import ChatIcon from "@material-ui/icons/Chat";
+// import ChatIcon from "@material-ui/icons/Chat";
 // Redux
 import { connect } from "react-redux";
 import { withStyles } from "@material-ui/styles";
-import Comments from "./Comments";
+// import Comments from "./Comments";
 import { getFeed, clearErrors } from "../../redux/actions/dataActions";
-import { Grid, Button } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 
 const styles = {
   card: {
@@ -66,24 +66,25 @@ class Feed extends Component {
   state = {
     open: false,
     userOpen: false,
-    comments: []
+    comments: [],
+    temp: true
   };
   
   render() {
     dayjs.extend(relativeTime);
     const {
-      getFeed,
+      // getFeed,
       classes,
       feed: {
         body,
         createdAt,
-        // userImage,
+        imageUrl,
         userHandle,
         feedId,
         likeCount,
         commentCount,
-        userLoc,
-        comments,
+        // userLoc,
+        // comments,
         feedType
       },
       user: {
@@ -94,7 +95,9 @@ class Feed extends Component {
 
     const deleteButton =
       authenticated && userHandle === handle ? (
+        <Fragment>
         <DeleteFeed feedId={feedId} />
+        </Fragment>
       ) : null;
     return (
       <Card className={classes.card}>
@@ -127,6 +130,12 @@ class Feed extends Component {
             {dayjs(createdAt).fromNow()}
           </Typography>
           <Typography variant="body1">{body}</Typography>
+          {imageUrl!==""? (
+          <img src={imageUrl} alt="by user" width="100%"></img>
+          ): (<div></div>)
+          }
+          {console.log("this is the imageUrl:" + imageUrl)}
+          {/* {imageUrl !== ""? (<img src={imageUrl} alt="by user"></img>):(<div></div>)} */}
           <LikeButton feedId={feedId} />
           <span>{likeCount} Likes</span>
 

@@ -7,18 +7,26 @@ import {
   POST_FEED,
   SET_FEED,
   SUBMIT_COMMENT,
-  SET_USERDATA
+  SET_USERDATA,
+  UPLOAD_IMAGE
 } from "../types";
 
 const initialState = {
+  imageUrl: "",
   feeds: [],
   feed: {},
   userData: {},
-  loading: false
+  loading: false,
+  temp: true
 };
 
 export default function(state = initialState, action) {
   switch (action.type) {
+    case UPLOAD_IMAGE:
+      return {
+        ...state,
+        imageUrl: action.payload
+      };
     case LOADING_DATA:
       return {
         ...state,
@@ -58,6 +66,7 @@ export default function(state = initialState, action) {
         ...state,
         feeds: [action.payload, ...state.feeds]
       };
+
     case SUBMIT_COMMENT:
       return {
         ...state,
