@@ -30,6 +30,7 @@ import MoreIcon from "@material-ui/icons/MoreVert";
 import Button from "@material-ui/core/Button";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
+import Chip from "@material-ui/core/Chip";
 Geocode.setApiKey("AIzaSyC63MRGstzFKD2AM5kWftjEBGeYZQpFphQ");
 
 const styles = theme => ({
@@ -58,11 +59,16 @@ export class home extends Component {
       userCoord: { lat: 0, lng: 0 },
       userLoc: "",
       loading: true,
-      filter: "Proximity",
+      filter: "feedType",
       distance: "3",
-      Tag: "general"
+      feedType: "none",
+      tag: "none"
     };
     this.handleChange = this.handleChange.bind(this);
+    this.handleDistDelete = this.handleDistDelete.bind(this);
+    this.handleFeedTypeDelete = this.handleFeedTypeDelete.bind(this);
+    this.handleTagDelete = this.handleTagDelete.bind(this);
+
   }
 
   componentDidMount() {
@@ -85,28 +91,44 @@ export class home extends Component {
     const { name, value } = event.target;
     return this.setState({ [name]: value });
   }
+  handleDistDelete() {
+    return this.setState({ distance: "100" });
+  }
+  handleFeedTypeDelete() {
+    return this.setState({ feedType: "none" });
+  }
+  handleTagDelete() {
+    return this.setState({ tag: "none" });
+  }
 
   render() {
     const { authenticated } = this.props.user;
     const { classes } = this.props;
     const { feeds, loading } = this.props.data;
     const { lat, lng } = this.state.userCoord;
-    // const { feeds, loading } = this.props.data;
+    let tags = [];
     let recentFeedsMarkup = !loading ? (
-      this.state.filter === "Proximity" ? (
-        feeds
-          .filter(feed => {
-            const from = turf.point([lng, lat]);
-            const to = turf.point([feed.userLoc.lng, feed.userLoc.lat]);
-            const options = { units: "kilometers" };
-            return turf.distance(from, to, options) < this.state.distance;
-          })
-          .map(feed => <Feed key={feed.feedId} feed={feed} />)
-      ) : (
-        feeds.filter(feed => {
-          return feed.feedType === this.state.Tag;
-        }).map(feed => <Feed key={feed.feedId} feed={feed} />)
-      )
+      feeds
+        .filter(feed => {
+          const from = turf.point([lng, lat]);
+          const to = turf.point([feed.userLoc.lng, feed.userLoc.lat]);
+          const options = { units: "kilometers" };
+          const distanceBool =
+            turf.distance(from, to, options) < this.state.distance;
+          let feedTypeBool = true;
+          this.state.feedType !== "none"
+            ? (feedTypeBool = feed.feedType === this.state.feedType)
+            : (feedTypeBool = true);
+          let tagBool = true;
+          this.state.tag !== "none"
+            ? (tagBool = feed.tag === this.state.tag)
+            : (tagBool = true);
+          let a = false;
+          // tags.includes(feed.tag) ? (a = true) : (tags.push(feed.tag));
+
+          return distanceBool && feedTypeBool && tagBool;
+        })
+        .map(feed => <Feed key={feed.feedId} feed={feed} />)
     ) : (
       <p>Loading...</p>
     );
@@ -143,7 +165,8 @@ export class home extends Component {
               >
                 <option value="" />
                 <option value="Proximity">Proximity</option>
-                <option value="Tag">Tag</option>
+                <option value="feedType">Feed Types</option>
+                <option value="tag">Tags</option>
               </Select>
             </FormControl>
             {this.state.filter === "Proximity" ? (
@@ -158,24 +181,65 @@ export class home extends Component {
                   <option value="5">5km</option>
                 </Select>
               </FormControl>
-            ) : (
+            ) : this.state.filter === "feedType" ? (
               <FormControl>
                 <Select
-                  name="Tag"
-                  value={this.state.Tag}
+                  name="feedType"
+                  value={this.state.feedType}
                   onChange={this.handleChange}
                 >
-                  <option>-- Choose one --</option>
+                  <option value="none">None</option>
                   <option value="general">General</option>
                   <option value="question">Question</option>
                   <option value="poll">Poll</option>
+                </Select>
+              </FormControl>
+            ) : (
+              <FormControl>
+                <Select
+                  name="tag"
+                  value={this.state.tag}
+                  onChange={this.handleChange}
+                >
+                  <option value="none">None</option>
+                  <option value="Splashdown">Splashdown</option>
+                  <option value="CS1010 lecture">CS1010 lecture</option>
+                  <option value="CS2040 Tutorial Grp 12">CS2040 Tutorial Grp 12</option>
                 </Select>
               </FormControl>
             )}
             <br />
           </Grid>
         </Grid>
+        {this.state.distance != "100" ? (
+        <Chip
+          label={"Distance =>" + this.state.distance + "km"}
+          onDelete={this.handleDistDelete}
+          className={classes.chip}
+          
+        />
+        ):(console.log(''))}
+        {this.state.feedType !== "none" ? (
+          <Chip
+            label={"Feed Type => " + this.state.feedType}
+            onDelete={this.handleFeedTypeDelete}
+            className={classes.chip}
+            color="primary"
+          />
+        ) : (
+          console.log("")
+        )}
 
+        {this.state.tag !== "none" ? (
+          <Chip
+            label={"Tag => " + this.state.tag}
+            onDelete={this.handleTagDelete}
+            className={classes.chip}
+            color="secondary"
+          />
+        ) : (
+          console.log("")
+        )}
         <Grid container spacing={3}>
           <Grid item sm={7} xs={11}>
             {recentFeedsMarkup}
@@ -202,9 +266,7 @@ export class home extends Component {
               <PostFeed userCoord={this.state.userCoord} />
             </Fab>
             <div className={classes.grow} />
-            <IconButton color="inherit">
-              {/* <SearchIcon /> */}
-            </IconButton>
+            <IconButton color="inherit">{/* <SearchIcon /> */}</IconButton>
             <IconButton edge="end" color="inherit">
               {/* <MoreIcon /> */}
             </IconButton>

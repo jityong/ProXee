@@ -12,11 +12,23 @@ import {
   STOP_LOADING_UI,
   SUBMIT_COMMENT,
   SET_USERDATA,
-  UPLOAD_IMAGE
-  // UPLOAD_IMAGE
+  UPLOAD_IMAGE,
+  SET_IMG
 } from "../types";
-import axios from "axios";
 
+import axios from "axios";
+//get img url
+export const getImageUrl = () => dispatch => {
+  dispatch({ type: LOADING_DATA });
+  axios
+    .get("getImageUrl")
+    .then(res => {
+      dispatch({ type: SET_IMG, payload: res.data });
+    })
+    .catch(err => {
+      dispatch({ type: SET_IMG, payload: [] });
+    });
+};
 // Get all feeds
 export const getFeeds = () => dispatch => {
   dispatch({ type: LOADING_DATA });
@@ -69,14 +81,17 @@ export const postFeed = newFeed => dispatch => {
 };
 export const uploadImage = formData => dispatch => {
   // dispatch({ type: LOADING_DATA });
-  axios.post("/Feed/image", formData).then(res => {
-    dispatch({ type: UPLOAD_IMAGE, payload: res.data }).catch(err => {
+  axios
+    .post("/Feed/image", formData)
+    .then(res => {
+      dispatch({ type: UPLOAD_IMAGE, payload: res.data });
+    })
+    .catch(err => {
       dispatch({
         type: SET_ERRORS,
         payload: err.response.data
       });
     });
-  });
 };
 // Like a feed
 export const likeFeed = feedId => dispatch => {

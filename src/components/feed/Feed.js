@@ -48,28 +48,32 @@ const styles = {
   sharing: {
     fontWeight: 600,
     fontStyle: "italic",
-    color: "green"
+    color: "white",
+    backgroundColor: "green"
   },
   question: {
     fontWeight: 600,
     fontStyle: "italic",
-    color: "red"
+    color: "white",
+    backgroundColor: "red"
   },
   poll: {
     fontWeight: 600,
     fontStyle: "italic",
-    color: "purple"
+    color: "white",
+    backgroundColor: "purple"
   }
 };
 
 class Feed extends Component {
+  
   state = {
     open: false,
     userOpen: false,
     comments: [],
     temp: true
   };
-  
+
   render() {
     dayjs.extend(relativeTime);
     const {
@@ -85,7 +89,8 @@ class Feed extends Component {
         commentCount,
         // userLoc,
         // comments,
-        feedType
+        feedType,
+        tag
       },
       user: {
         authenticated,
@@ -95,47 +100,47 @@ class Feed extends Component {
 
     const deleteButton =
       authenticated && userHandle === handle ? (
-        <Fragment>
         <DeleteFeed feedId={feedId} />
-        </Fragment>
       ) : null;
     return (
       <Card className={classes.card}>
-        <CardContent className={classes.content}>
-          <Grid container direction="row">
-            <Grid item xs={12} sm={6}>
-              <Profile
-                userHandle={userHandle}
-              />
+        <CardContent className={classes.content} style={{width:"100%"}}>
+          <Grid container direction="row" justify="space-between"style={{ width: "100%" }}>
+            <Grid item>
+              <Profile userHandle={userHandle} />
               {/* User Profile */}
             </Grid>
-            <Grid item xs={12} sm={6}>
-              {deleteButton}
-            </Grid>
+            <Grid item>{deleteButton}</Grid>
           </Grid>
           {feedType === "general" ? (
-            <Typography variant="body2" className={classes.sharing}>
+            <span variant="body2" className={classes.sharing}>
               #general
-            </Typography>
+            </span>
           ) : feedType === "question" ? (
-            <Typography variant="body2" className={classes.question}>
+            <span variant="body2" className={classes.question}>
               #question
-            </Typography>
+            </span>
           ) : (
-            <Typography variant="body2" className={classes.poll}>
+            <span variant="body2" className={classes.poll}>
               #poll
-            </Typography>
+            </span>
           )}
+          {"  "}
+          {tag !== "none"?  <span className={classes.poll}>
+            #{tag}
+          </span> : (console.log(''))}
+         
+        
           <Typography variant="body2" color="textSecondary">
             {dayjs(createdAt).fromNow()}
           </Typography>
           <Typography variant="body1">{body}</Typography>
-          {imageUrl!==""? (
-          <img src={imageUrl} alt="by user" width="100%"></img>
-          ): (<div></div>)
-          }
-          {console.log("this is the imageUrl:" + imageUrl)}
-          {/* {imageUrl !== ""? (<img src={imageUrl} alt="by user"></img>):(<div></div>)} */}
+          {imageUrl !== "" ? (
+            <img src={imageUrl} alt="by user" width="100%" />
+          ) : (
+            <div />
+          )}
+
           <LikeButton feedId={feedId} />
           <span>{likeCount} Likes</span>
 

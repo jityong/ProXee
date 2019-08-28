@@ -85,7 +85,7 @@ class Profile extends Component {
         <Dialog open={this.state.userOpen} onClose={this.handleClose}>
           <DialogContent>
             {userProfile}
-            {console.log(userData)}
+            {/* {console.log(userData)} */}
           </DialogContent>
         </Dialog>
       </div>

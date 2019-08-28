@@ -1,5 +1,6 @@
 const { admin, db } = require("../util/admin");
 const { config } = require("../util/config");
+
 exports.getAllFeed = (req, res) => {
   db.collection("Feed")
     .orderBy("createdTime", "desc")
@@ -16,10 +17,26 @@ exports.getAllFeed = (req, res) => {
           likeCount: doc.data().likeCount,
           userLoc: doc.data().userLoc,
           feedType: doc.data().feedType,
-          imageUrl: doc.data().imageUrl
+          imageUrl: doc.data().imageUrl,
+          tag: doc.data().tag
         });
       });
       return res.json(feeds);
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ error: err.code });
+    });
+};
+exports.getTags = (req, res) => {
+  db.collection("Tag")
+    .get()
+    .then(data => {
+      let tags = [];
+      data.forEach(doc => {
+        tags.push({ tag: doc.data().tag });
+      });
+      return res.json(tags);
     })
     .catch(err => {
       console.error(err);
@@ -40,8 +57,10 @@ exports.postOneFeed = (req, res) => {
     commentCount: 0,
     userLoc: req.body.userLoc,
     feedType: req.body.feedType,
-    imageUrl: ""
+    imageUrl: req.body.imageUrl,
+    tag: req.body.tag
   };
+
   return db
     .collection("Feed")
     .add(newFeed)
@@ -49,6 +68,22 @@ exports.postOneFeed = (req, res) => {
       const resFeed = newFeed;
       resFeed.feedId = doc.id;
       return res.json(resFeed);
+    })
+    .catch(err => {
+      res.status(500).json({ error: "something went wrong" });
+      console.error(err);
+    });
+};
+//post tags
+exports.postTag = (req, res) => {
+  const newTag = { tag: req.body.body };
+  return db
+    .collection("Tag")
+    .add(newTag)
+    .then(doc => {
+      const resTag = newTag;
+      resTag.tagId = doc.id;
+      return res.json(resTag);
     })
     .catch(err => {
       res.status(500).json({ error: "something went wrong" });
@@ -80,6 +115,23 @@ exports.getFeed = (req, res) => {
         feedData.comments.push(doc.data());
       });
       return res.json(feedData);
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ error: err.code });
+    });
+};
+//getimage url
+exports.getImageUrl = (req, res) => {
+  let img = {};
+  db.doc(`/image/img`)
+    .get()
+    .then(doc => {
+      if (!doc.exists) {
+        return res.status(404).json({ error: "image not found" });
+      }
+      img = doc.data();
+      return res.json(img);
     })
     .catch(err => {
       console.error(err);
@@ -244,7 +296,6 @@ exports.uploadImage = (req, res) => {
   let imageFileName;
   let imageUrl = "test";
 
-  // eslint-disable-next-line consistent-return
   busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
     console.log(fieldname, file, filename, encoding, mimetype);
     if (mimetype !== "image/jpeg" && mimetype !== "image/png") {
@@ -259,6 +310,7 @@ exports.uploadImage = (req, res) => {
     const filepath = path.join(os.tmpdir(), imageFileName);
     imageToBeUploaded = { filepath, mimetype };
     file.pipe(fs.createWriteStream(filepath));
+    return null;
   });
   busboy.on("finish", () => {
     admin
@@ -273,16 +325,16 @@ exports.uploadImage = (req, res) => {
         }
       })
       .then(() => {
-        imageUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
-        return db.doc(`/image/img`).update(imageUrl);
+        imageUrl = `https://firebasestorage.googleapis.com/v0/b/proxee-3a609.appspot.com/o/${imageFileName}?alt=media`;
+        return db.doc(`/image/img`).update({ imageUrl: imageUrl });
       })
       .then(() => {
-        return res.json("its working");
+        return res.json(imageUrl);
       })
       .catch(err => {
         console.error(err);
         return res.status(500).json({ error: "something went wrong" });
       });
   });
-  return busboy.end(req.rawBody);
-}
+  busboy.end(req.rawBody);
+};

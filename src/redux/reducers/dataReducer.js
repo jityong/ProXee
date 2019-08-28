@@ -8,7 +8,8 @@ import {
   SET_FEED,
   SUBMIT_COMMENT,
   SET_USERDATA,
-  UPLOAD_IMAGE
+  UPLOAD_IMAGE,
+  SET_IMG
 } from "../types";
 
 const initialState = {
@@ -22,6 +23,11 @@ const initialState = {
 
 export default function(state = initialState, action) {
   switch (action.type) {
+    case SET_IMG:
+        return {
+          ...state,
+          imageUrl: ""
+        };
     case UPLOAD_IMAGE:
       return {
         ...state,

@@ -199,4 +199,3 @@ exports.getAuthenticatedUser = (req, res) => {
   });
 };
 
-//upload profile image for user

@@ -15,7 +15,10 @@ const {
     likeFeed,
     unlikeFeed,
     deleteFeed,
-    uploadImage
+    uploadImage,
+    getImageUrl,
+    getTags,
+    postTag
 } = require ('./handlers/Feed');
 
 const { 
@@ -24,9 +27,12 @@ const {
     getAuthenticatedUser,
     getUserDetails,
     addUserDetails,
+    
 } = require ('./handlers/users');
 
 //Feed routes
+app.get('/getTags', getTags);
+app.post('/postTag', postTag);
 app.get('/Feed', getAllFeed);
 app.post('/Feed',FBAuth, postOneFeed);
 app.get('/Feed/:feedId', getFeed);
@@ -34,7 +40,8 @@ app.delete('/Feed/:feedId', FBAuth, deleteFeed);
 app.get('/Feed/:feedId/like', FBAuth, likeFeed);
 app.get('/Feed/:feedId/unlike', FBAuth,unlikeFeed);
 app.post('/Feed/:feedId/comment', FBAuth, commentOnFeed);
-app.post('/Feed/image', FBAuth, uploadImage);
+app.post('/Feed/image', uploadImage);
+app.get('/getImageUrl',getImageUrl);
 //users routes
 
 app.post('/signup', signup);

@@ -12,16 +12,16 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import AddIcon from "@material-ui/icons/Add";
 import CloseIcon from "@material-ui/icons/Close";
 import Grid from "@material-ui/core/Grid";
-import { borders } from "@material-ui/system";
-import ReactVote from "react-vote";
-import firebase from "firebase";
-import FileUploader from "react-firebase-file-uploader";
+import Select from "@material-ui/core/Select";
+import FormControl from "@material-ui/core/FormControl";
+import "../../App.css";
 
 // Redux stuff
 import { connect } from "react-redux";
 import {
   postFeed,
   uploadImage,
+  getImageUrl,
   clearErrors
 } from "../../redux/actions/dataActions";
 
@@ -50,8 +50,16 @@ class PostFeed extends Component {
     feedType: "",
     isUploading: false,
     progress: 0,
-    imageUrl: ""
+    imageUrl: "",
+    tag: "none"
   };
+  shouldComponentUpdate(nextProps, nextState) {
+    if (this.state.props !== "none" && nextProps.tags !== "none") {
+      return true;
+    } else {
+      return false;
+    }
+  }
   componentWillReceiveProps(nextProps) {
     if (nextProps.UI.errors) {
       this.setState({
@@ -90,23 +98,29 @@ class PostFeed extends Component {
       body: this.state.body,
       userLoc: this.props.userCoord,
       feedType: this.state.feedType,
-      imageUrl: this.state.imageUrl
+      imageUrl: this.state.imageUrl,
+      tag: this.state.tag
     });
+    this.setState({ imageUrl: "" });
     console.log(this.props.userCoord);
   };
-  handleImageUpload = event => {
+  handleImageUpload = imageUrl => event => {
     const image = event.target.files[0];
     const formData = new FormData();
     formData.append("image", image, image.name);
     this.props.uploadImage(formData);
     console.log("in handleImageUpload");
+    this.setState({ imageUrl: imageUrl });
+    console.log("THIS IS IT" + this.props.data.imageUrl);
   };
-  
+
   render() {
     const { errors } = this.state;
     const {
       classes,
-      UI: { loading }
+      tags,
+      UI: { loading },
+      data: { imageUrl }
     } = this.props;
     const post =
       this.state.feedType === "general" ? (
@@ -124,9 +138,22 @@ class PostFeed extends Component {
             onChange={this.handleChange}
             fullWidth
           />
+          Select tag: 
+          <FormControl>
+                <Select
+                  name="tag"
+                  value={this.state.tag}
+                  onChange={this.handleChange}
+                >
+                  <option value="none">None</option>
+                  <option value="Splashdown">Splashdown</option>
+                  <option value="CS1010 lecture">CS1010 lecture</option>
+                  <option value="CS2040 Tutorial Grp 12">CS2040 Tutorial Grp 12</option>
+                </Select>
+          </FormControl>
+          <br/>
           <label>Image</label>
-          <input type="file" onChange={this.handleImageUpload} />
-
+          <input type="file" onChange={this.handleImageUpload(imageUrl)} />
           <form onSubmit={this.handleSubmit}>
             <Button
               variant="outlined"
@@ -167,6 +194,20 @@ class PostFeed extends Component {
             onChange={this.handleChange}
             fullWidth
           />
+          Select tag: 
+          <FormControl>
+                <Select
+                  name="tag"
+                  value={this.state.tag}
+                  onChange={this.handleChange}
+                >
+                  <option value="none">None</option>
+                  <option value="Splashdown">Splashdown</option>
+                  <option value="CS1010 lecture">CS1010 lecture</option>
+                  <option value="CS2040 Tutorial Grp 12">CS2040 Tutorial Grp 12</option>
+                </Select>
+          </FormControl>
+          <br/>
           <label>Image</label>
           <input type="file" onChange={this.handleImageUpload} />
           <form onSubmit={this.handleSubmit}>
@@ -201,28 +242,39 @@ class PostFeed extends Component {
           justify="center"
           alignItems="stretch"
         >
-          <Grid item size={12}>
+          <Grid item>
             <Button
               variant="contained"
               color="primary"
               onClick={this.handleShareClick}
+              style={{ width: "100%" }}
             >
               Share something{" "}
             </Button>
+            <hr />
           </Grid>
 
           <Grid item>
+            {/* <hr /> */}
             <Button
               variant="contained"
               color="secondary"
               onClick={this.handleQnClick}
+              style={{ width: "100%" }}
             >
               {" "}
               Ask a Question{" "}
             </Button>
+            <hr />
           </Grid>
+
           <Grid item>
-            <Button variant="contained" onClick={this.handlePollClick}>
+            {/* <hr /> */}
+            <Button
+              variant="contained"
+              onClick={this.handlePollClick}
+              style={{ width: "100%" }}
+            >
               {" "}
               Create a Poll{" "}
             </Button>
@@ -275,11 +327,10 @@ class PostFeed extends Component {
           >
             <CloseIcon />
           </MyButton>
-          <DialogTitle>Post a new feed</DialogTitle>
+          <DialogTitle style={{fontFamily:"Livvic"}}>Post a new feed</DialogTitle>
 
           <DialogContent fullWidth>{post}</DialogContent>
         </Dialog>
-        {console.log(this.props.userCoord)}
       </Fragment>
     );
   }
@@ -289,11 +340,13 @@ PostFeed.propTypes = {
   postFeed: PropTypes.func.isRequired,
   uploadImage: PropTypes.func.isRequired,
   clearErrors: PropTypes.func.isRequired,
+  data: PropTypes.object.isRequired,
   UI: PropTypes.object.isRequired
 };
 
 const mapStateToProps = state => ({
-  UI: state.UI
+  UI: state.UI,
+  data: state.data
 });
 
 export default connect(
