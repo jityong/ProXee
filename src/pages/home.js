@@ -5,6 +5,7 @@ import Geocode from "react-geocode";
 import Feed from "../components/feed/Feed";
 import { Link } from "react-router-dom";
 import Logout from "./logout";
+import API_KEY from "../config"
 
 // import FeedSkeleton from "../util/FeedSkeleton";
 
@@ -31,7 +32,7 @@ import Button from "@material-ui/core/Button";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import Chip from "@material-ui/core/Chip";
-Geocode.setApiKey("AIzaSyC63MRGstzFKD2AM5kWftjEBGeYZQpFphQ");
+Geocode.setApiKey(API_KEY);
 
 const styles = theme => ({
   appBar: {
